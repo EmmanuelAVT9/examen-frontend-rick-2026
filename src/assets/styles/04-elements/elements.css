@@ -5,3 +5,11 @@ main {
     color: var(--black);
     font-size: 32px;
 }
+
+h2 {
+    font-family: 'Arial', sans-serif;
+    font-weight: 200;
+    font-style: normal;
+    color: var(--black);
+    font-size: 32px;
+}

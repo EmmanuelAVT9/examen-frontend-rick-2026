@@ -39,7 +39,7 @@ onMounted(() => {
 
     <div v-else-if="errorMessage" class="c-character-list__error">
       <p>{{ errorMessage }}</p>
-      <button @click="loadCharacters">Reintentar</button>
+      <button class="c-character-btn__error" @click="loadCharacters">Reintentar</button>
     </div>
 
     <ul v-else class="o-grid">
@@ -88,17 +88,34 @@ onMounted(() => {
   width: 100%;
   height: auto;
   display: block;
+  mix-blend-mode: multiply;
+  /* filter: sepia(1) hue-rotate(50deg) saturate(3); */
 }
 
 .c-card__body {
+  font-family: 'Arial', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+  color: var(--black);
+  font-size: 1rem;
   padding: 1rem;
 }
 
 .c-character-list__error {
+  font-family: 'Arial', sans-serif;
+  font-weight: 200;
+  font-style: normal;
   color: #d32f2f;
   text-align: center;
   padding: 2rem;
   background-color: #ffebee;
   border-radius: 8px;
+}
+.c-character-btn__error {
+  font-family: 'Arial', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+  color: var(--white);
+  background-color: var(--sub-black);
 }
 </style>
