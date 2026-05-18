@@ -2,13 +2,17 @@
 import { ref, onMounted } from 'vue'
 import { getCharacters } from '@/services/characters/character.service'
 import type { Character } from '@/models/CharactersModel'
+import CardPersonaje from './CardPersonaje.vue'
+import ModalDetallePersonaje from './ModalDetallePersonaje.vue' // <-- 1. Importar el modal
 
-// Estados reactivos
 const characters = ref<Character[]>([])
 const isLoading = ref<boolean>(true)
 const errorMessage = ref<string | null>(null)
 
-// Función para cargar los datos
+// 2. Estados reactivos para controlar el Modal
+const selectedCharacter = ref<Character | null>(null)
+const isModalOpen = ref(false)
+
 const loadCharacters = async () => {
   try {
     isLoading.value = true
@@ -16,106 +20,48 @@ const loadCharacters = async () => {
     const response = await getCharacters()
     characters.value = response.results
   } catch (error: any) {
-    // Aquí recibimos el ApiError estructurado desde el interceptor
     errorMessage.value = error.message || 'Error al obtener los personajes'
   } finally {
     isLoading.value = false
   }
 }
 
-// Ejecutar al montar el componente
-onMounted(() => {
-  loadCharacters()
-})
+// 3. Función que recibe el personaje clickeado y abre la ventana
+const openModal = (character: Character) => {
+  selectedCharacter.value = character
+  isModalOpen.value = true
+}
+
+onMounted(() => loadCharacters())
 </script>
 
 <template>
   <div class="c-character-list">
-    <h2>Personajes de Rick and Morty</h2>
-
-    <div v-if="isLoading" class="c-character-list__loading">
-      <p>Cargando personajes...</p>
-    </div>
-
-    <div v-else-if="errorMessage" class="c-character-list__error">
-      <p>{{ errorMessage }}</p>
-      <button class="c-character-btn__error" @click="loadCharacters">Reintentar</button>
+    <div v-if="isLoading">Cargando personajes...</div>
+    <div v-else-if="errorMessage">
+      {{ errorMessage }} <button @click="loadCharacters">Reintentar</button>
     </div>
 
     <ul v-else class="o-grid">
-      <li v-for="character in characters" :key="character.id" class="c-card">
-        <img
-          :src="character.image"
-          :alt="`Imagen de ${character.name}`"
-          class="c-card__image"
-          loading="lazy"
-        />
-        <div class="c-card__body">
-          <h3>{{ character.name }}</h3>
-          <p><strong>Estado:</strong> {{ character.status }}</p>
-          <p><strong>Especie:</strong> {{ character.species }}</p>
-        </div>
+      <li v-for="character in characters" :key="character.id">
+        <CardPersonaje :character="character" @select="openModal" />
       </li>
     </ul>
+
+    <ModalDetallePersonaje
+      :character="selectedCharacter"
+      :is-open="isModalOpen"
+      @close="isModalOpen = false"
+    />
   </div>
 </template>
 
 <style scoped>
-/* Estilos base orientados a BEM / ITCSS */
 .o-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
   list-style: none;
   padding: 0;
-}
-
-.c-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.2s ease-in-out;
-}
-
-.c-card:hover {
-  transform: translateY(-5px);
-}
-
-.c-card__image {
-  width: 100%;
-  height: auto;
-  display: block;
-  mix-blend-mode: multiply;
-  /* filter: sepia(1) hue-rotate(50deg) saturate(3); */
-}
-
-.c-card__body {
-  font-family: 'Arial', sans-serif;
-  font-weight: 200;
-  font-style: normal;
-  color: var(--black);
-  font-size: 1rem;
-  padding: 1rem;
-}
-
-.c-character-list__error {
-  font-family: 'Arial', sans-serif;
-  font-weight: 200;
-  font-style: normal;
-  color: #d32f2f;
-  text-align: center;
-  padding: 2rem;
-  background-color: #ffebee;
-  border-radius: 8px;
-}
-.c-character-btn__error {
-  font-family: 'Arial', sans-serif;
-  font-weight: 200;
-  font-style: normal;
-  color: var(--white);
-  background-color: var(--sub-black);
 }
 </style>
