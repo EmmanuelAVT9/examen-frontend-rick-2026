@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const BASE_URL = 'https://rickandmortyapi.com/api';
 
 /**
@@ -11,62 +13,59 @@ export class ApiError extends Error {
 }
 
 /**
- * Validador de respuestas HTTP
+ * Instancia global de Axios preconfigurada
  */
-const handleHttpErrors = async (response: Response): Promise<Response> => {
-    if (!response.ok) {
-        let errorMessage = 'Ocurrió un error inesperado';
-
-        switch (response.status) {
-            case 400:
-                errorMessage = 'Solicitud incorrecta: El servidor no pudo entender la petición.';
-                break;
-            case 401:
-                errorMessage = 'No autorizado: Acceso denegado.';
-                break;
-            case 403:
-                errorMessage = 'Prohibido: No tienes permiso para acceder a este recurso.';
-                break;
-            case 404:
-                errorMessage = 'No encontrado: No se pudo encontrar el recurso solicitado.';
-                break;
-            case 500:
-                errorMessage = 'Error interno del servidor: Algo salió mal en el servidor.';
-                break;
-            case 503:
-                errorMessage = 'Servicio no disponible: El servidor actualmente no puede manejar la solicitud.';
-                break;
-            default:
-                errorMessage = `Error HTTP: ${response.status} - ${response.statusText}`;
-        }
-
-        throw new ApiError(response.status, errorMessage);
-    }
-
-    return response;
-};
+export const apiClient = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
 
 /**
- * Wrapper genérico para realizar peticiones fetch
+ * Interceptor de respuestas para manejo centralizado de errores
  */
-export const fetchApi = async <T>(endpoint: string, options?: RequestInit): Promise<T> => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            ...options,
-        });
+apiClient.interceptors.response.use(
+    (response) => {
+        // Si la respuesta es exitosa (código 2xx), la devolvemos tal cual
+        return response;
+    },
+    (error) => {
+        let errorMessage = 'Ocurrió un error inesperado';
+        let status = 0;
 
-        await handleHttpErrors(response);
-        return (await response.json()) as T;
-
-    } catch (error) {
-        // rrores de red
-        if (error instanceof TypeError) {
-            throw new Error('Error de red: Por favor, comprueba tu conexión a internet o la política CORS.');
+        // Si el servidor respondió con un código de error HTTP
+        if (error.response) {
+            status = error.response.status;
+            switch (status) {
+                case 400:
+                    errorMessage = 'Solicitud incorrecta: El servidor no pudo entender la petición.';
+                    break;
+                case 401:
+                    errorMessage = 'No autorizado: Acceso denegado.';
+                    break;
+                case 403:
+                    errorMessage = 'Prohibido: No tienes permiso para acceder a este recurso.';
+                    break;
+                case 404:
+                    errorMessage = 'No encontrado: No se pudo encontrar el recurso solicitado.';
+                    break;
+                case 500:
+                    errorMessage = 'Error interno del servidor: Algo salió mal en el servidor.';
+                    break;
+                case 503:
+                    errorMessage = 'Servicio no disponible: El servidor actualmente no puede manejar la solicitud.';
+                    break;
+                default:
+                    errorMessage = `Error HTTP: ${status} - ${error.response.statusText}`;
+            }
         }
-        // Error inesperado
-        throw error;
+        // Si la petición se hizo pero no hubo respuesta
+        else if (error.request) {
+            errorMessage = 'Error de red: Por favor, comprueba tu conexión a internet o la política CORS.';
+        }
+
+        // Se rechaza nuestra promesa devolviendo nuestra clase de error personalizada
+        return Promise.reject(new ApiError(status, errorMessage));
     }
-};
+);
