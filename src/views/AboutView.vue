@@ -1,15 +1,19 @@
+<script setup lang="ts">
+import ListadoPersonajes from '@/components/ListadoPersonajes.vue'
+</script>
+
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+  <main>
+    <h1>Bienvenido a la API de Rick and Morty</h1>
+    <hr />
+    <ListadoPersonajes />
+  </main>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+<style scoped>
+main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>
