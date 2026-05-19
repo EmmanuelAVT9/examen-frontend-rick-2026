@@ -1,33 +1,53 @@
 <script setup lang="ts">
 import { useFavoritesStore } from '@/stores/favorites.store'
-import CardPersonajeFavorita from './CardPersonajeFavorita.vue'
+import CardPersonaje from './CardPersonaje.vue'
+import ModalDetallePersonaje from './ModalDetallePersonaje.vue'
+import { ref } from 'vue'
+import type { Character } from '@/models/CharactersModel'
 
 const store = useFavoritesStore()
+
+const selectedCharacter = ref<Character | null>(null)
+const isModalOpen = ref(false)
+
+const openModal = (character: Character) => {
+  selectedCharacter.value = character
+  isModalOpen.value = true
+}
 </script>
 
 <template>
-  <aside class="c-favorites-list">
-    <h3>Mis Favoritos</h3>
-    <div v-if="store.favorites.length === 0">
-      <p>Aún no tienes personajes favoritos.</p>
+  <div class="c-favorites-grid">
+    <div v-if="store.favorites.length === 0" class="c-favorites-empty">
+      <p>Aún no tienes personajes favoritos. ¡Ve a buscar algunos!</p>
     </div>
-    <ul v-else>
+
+    <ul v-else class="o-grid">
       <li v-for="character in store.favorites" :key="character.id">
-        <CardPersonajeFavorita :character="character" />
+        <CardPersonaje :character="character" @select="openModal" />
       </li>
     </ul>
-  </aside>
+
+    <ModalDetallePersonaje
+      :character="selectedCharacter"
+      :is-open="isModalOpen"
+      @close="isModalOpen = false"
+    />
+  </div>
 </template>
 
 <style scoped>
-.c-favorites-list {
-  padding: 1rem;
-  background: #fff;
-  border-left: 1px solid #eee;
-  height: 100%;
-}
-ul {
+.o-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
   list-style: none;
   padding: 0;
+}
+.c-favorites-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.2rem;
 }
 </style>
