@@ -1,3 +1,8 @@
+export interface CharacterLocation {
+    name: string;
+    url: string;
+}
+
 export interface Character {
     id: number;
     name: string;
@@ -8,6 +13,8 @@ export interface Character {
     image: string;
     url: string;
     created: string;
+    origin: CharacterLocation;
+    location: CharacterLocation;
 }
 
 export interface CharacterResponse {
