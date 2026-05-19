@@ -7,4 +7,14 @@
     --background-1: #EFF0F1;
     --background-2: #F7F7F8;
     --white: #FFFFFF;
+
+    /* Badge Colors */
+    --badge-alive: #CCEFFF;
+    --badge-dead: #CCEFFF;
+    --badge-unknown: #F7F6CE;
+    --badge-gender: #CCD5FF;
+    --badge-species: #CCFFDA;
+    --badge-origin: #F7F6CE;
+    --badge-location: #FAE9D2;
+    --modal-overlay: rgba(0, 0, 0, 0.8);
 }
