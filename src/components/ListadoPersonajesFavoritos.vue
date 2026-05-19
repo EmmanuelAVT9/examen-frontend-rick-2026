@@ -19,7 +19,7 @@ const openModal = (character: Character) => {
 <template>
   <div class="c-favorites-grid">
     <div v-if="store.favorites.length === 0" class="c-favorites-empty">
-      <p>Aún no tienes personajes favoritos. ¡Ve a buscar algunos!</p>
+      <p>Por el momento no tienes personajes favoritos.</p>
     </div>
 
     <ul v-else class="o-grid">

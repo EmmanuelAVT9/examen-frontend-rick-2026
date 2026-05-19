@@ -8,7 +8,7 @@ let timeoutId: ReturnType<typeof setTimeout>
 const handleSearch = (value: string) => {
   clearTimeout(timeoutId)
   timeoutId = setTimeout(() => {
-    store.loadCharacters(value)
+    store.loadCharacters(1, value)
   }, 500)
 }
 </script>

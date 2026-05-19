@@ -4,6 +4,7 @@ import { useCharactersStore } from '@/stores/characters.store'
 import type { Character } from '@/models/CharactersModel'
 import CardPersonaje from './CardPersonaje.vue'
 import ModalDetallePersonaje from './ModalDetallePersonaje.vue'
+import PaginacionPersonajes from './PaginacionPersonajes.vue'
 
 const store = useCharactersStore()
 
@@ -30,11 +31,15 @@ onMounted(() => {
       {{ store.errorMessage }}
     </div>
 
-    <ul v-else class="o-grid">
-      <li v-for="character in store.characters" :key="character.id">
-        <CardPersonaje :character="character" @select="openModal" />
-      </li>
-    </ul>
+    <div v-else>
+      <ul class="o-grid">
+        <li v-for="character in store.characters" :key="character.id">
+          <CardPersonaje :character="character" @select="openModal" />
+        </li>
+      </ul>
+
+      <PaginacionPersonajes />
+    </div>
 
     <ModalDetallePersonaje
       :character="selectedCharacter"
