@@ -1,49 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getCharacters } from '@/services/characters/character.service'
+import { onMounted, ref } from 'vue'
+import { useCharactersStore } from '@/stores/characters.store'
 import type { Character } from '@/models/CharactersModel'
 import CardPersonaje from './CardPersonaje.vue'
-import ModalDetallePersonaje from './ModalDetallePersonaje.vue' // <-- 1. Importar el modal
+import ModalDetallePersonaje from './ModalDetallePersonaje.vue'
 
-const characters = ref<Character[]>([])
-const isLoading = ref<boolean>(true)
-const errorMessage = ref<string | null>(null)
+const store = useCharactersStore()
 
-// 2. Estados reactivos para controlar el Modal
 const selectedCharacter = ref<Character | null>(null)
 const isModalOpen = ref(false)
 
-const loadCharacters = async () => {
-  try {
-    isLoading.value = true
-    errorMessage.value = null
-    const response = await getCharacters()
-    characters.value = response.results
-  } catch (error: any) {
-    errorMessage.value = error.message || 'Error al obtener los personajes'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// 3. Función que recibe el personaje clickeado y abre la ventana
 const openModal = (character: Character) => {
   selectedCharacter.value = character
   isModalOpen.value = true
 }
 
-onMounted(() => loadCharacters())
+onMounted(() => {
+  if (store.characters.length === 0) {
+    store.loadCharacters()
+  }
+})
 </script>
 
 <template>
   <div class="c-character-list">
-    <div v-if="isLoading">Cargando personajes...</div>
-    <div v-else-if="errorMessage">
-      {{ errorMessage }} <button @click="loadCharacters">Reintentar</button>
+    <div v-if="store.isLoading" class="c-message">Buscando en el multiverso...</div>
+
+    <div v-else-if="store.errorMessage" class="c-message c-message--error">
+      {{ store.errorMessage }}
     </div>
 
     <ul v-else class="o-grid">
-      <li v-for="character in characters" :key="character.id">
+      <li v-for="character in store.characters" :key="character.id">
         <CardPersonaje :character="character" @select="openModal" />
       </li>
     </ul>
@@ -63,5 +51,14 @@ onMounted(() => loadCharacters())
   gap: 1.5rem;
   list-style: none;
   padding: 0;
+}
+.c-message {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+.c-message--error {
+  color: #d32f2f;
 }
 </style>
